@@ -46,7 +46,7 @@ kable(data.kr[After.o, ][, c(1:4, 6, 5)], align = c('l', rep('r', 5)))
 
 #### 부서 점수 순
 
-```{r, sorted projects by Before, ech0 = FALSE}
+```{r, sorted projects by Before, echo = FALSE}
 kable(data.kr[Before.o, ][, c(1:4, 6, 5)], align = c('l', rep('r', 5)))
 ```
 

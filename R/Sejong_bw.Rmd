@@ -29,14 +29,23 @@ pander(round(tapply(data$Diff, factor(data$Division), mean), digits = 1))
 
 ```{r, sorting, echo = FALSE}
 After.o <- order(data$After, decreasing = TRUE)
+Before.o <- order(data$Before, decreasing = TRUE)
+Project.o <- data$Project[order(data$Division, data$After)]
+Project.f <- factor(data$Project, levels = Project.o)
 ```
-
-----
 
 ### 조정된 점수순 정리
 
-```{r, sorted projects, echo = FALSE}
+#### 평가위원회 점수 순
+
+```{r, sorted projects by After, echo = FALSE}
 kable(data.kr[After.o, ][, c(1:4, 6, 5)], align = c('l', rep('r', 5)))
+```
+
+#### 부서 점수 순
+
+```{r, sorted projects by Before, echo = FALSE}
+kable(data.kr[Before.o, ][, c(1:4, 6, 5)], align = c('l', rep('r', 5)))
 ```
 
 ----
@@ -77,4 +86,17 @@ g7 <- g6 + annotate("text", x = c(70, 50), y = c(14.5, 6.5), label = c("보통",
 g7
 ```
 
+### 분과별 부서 점수와 위원회 점수 비교
+
+```{r, dotplot_division, echo = FALSE}
+h1 <- ggplot(data) + theme_bw() + theme.kr.ASGN
+h2 <- h1 + xlim(40, 100)
+h3 <- h2 + geom_segment(aes(x = Before, y = Project.f, xend = After, yend = Project.f, alpha = Division), arrow = arrow(length = unit(0.1, "inches"), ends = "last", type = "closed"))
+h4 <- h3 + xlab("위원회점수와 부서점수") + ylab("포괄보조사업") + labs(alpha = "분과") + theme(legend.position = c(.15,.85))
+h5 <- h4 + geom_vline(xintercept = c(83.8, 91), linetype = 3)
+h5
+#h5 <- h4 + geom_hline(yintercept = c(11.5, 17.5), linetype = 3)
+#h6 <- h5 + annotate("text", x = c(70, 50), y = c(14.5, 6.5), label = c("보통", "미흡"), #family = "Apple SD Gothic Neo" )
+#h6
+```
 
