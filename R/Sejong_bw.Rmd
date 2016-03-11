@@ -15,7 +15,7 @@ library(knitr)
 ### 분과별 점수조정 평균
 
 ```{r, data, echo = FALSE, results = 'hide'}
-data <- read.table("data.txt")
+data <- read.table("../data/data.txt")
 names(data) <- c("Project", "Division", "Before", "After", "Budget")
 data$Division <- factor(data$Division, labels = 1:3)
 data$Diff <- data$Before - data$After
@@ -70,10 +70,11 @@ g1 <- ggplot(data) + theme_bw() + theme.kr.ASGN
 g2 <- g1 + xlim(40, 100)
 # g3 <- g2 + geom_point(aes(x = Before, y = reorder(Project, After), colour = Division), size = 3) + xlab("위원회점수와 부서점수") + ylab("포괄보조사업")
 g3 <- g2
-g4 <- g3 + geom_segment(aes(x = Before, y = reorder(Project, After), xend = After, yend = Project, linetype = Division), arrow = arrow(length = unit(0.1, "inches"), ends = "both", type = "closed"))
-g5 <- g4 + xlab("위원회점수와 부서점수") + ylab("포괄보조사업") + labs(linetype = "분과") + theme(legend.position = c(.15,.8))
+g4 <- g3 + geom_segment(aes(x = Before, y = reorder(Project, After), xend = After, yend = Project, alpha = Division), arrow = arrow(length = unit(0.1, "inches"), ends = "last", type = "closed"), lineend = "round")
+g5 <- g4 + xlab("위원회점수와 부서점수") + ylab("포괄보조사업") + labs(alpha = "분과") + theme(legend.position = c(.15,.8))
 g6 <- g5 + geom_hline(yintercept = c(11.5, 17.5), linetype = 3)
 g7 <- g6 + annotate("text", x = c(70, 50), y = c(14.5, 6.5), label = c("보통", "미흡"), family = "Apple SD Gothic Neo" )
 g7
 ```
+
 
