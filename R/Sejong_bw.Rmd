@@ -1,0 +1,79 @@
+---
+title: "세종시 자체평가 자료"
+author: "coop711"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+library(knitr)
+```
+----
+
+### 분과별 점수조정 평균
+
+```{r, data, echo = FALSE, results = 'hide'}
+data <- read.table("data.txt")
+names(data) <- c("Project", "Division", "Before", "After", "Budget")
+data$Division <- factor(data$Division, labels = 1:3)
+data$Diff <- data$Before - data$After
+data.kr <- data
+names(data.kr) <- c("포괄보조사업", "분과", "부서점수", "위원회점수", "예산", "차이")
+```
+
+```{r, mean differences, echo = FALSE}
+pander(round(tapply(data$Diff, factor(data$Division), mean), digits = 1))
+```
+
+```{r, sorting, echo = FALSE}
+After.o <- order(data$After, decreasing = TRUE)
+```
+
+----
+
+### 조정된 점수순 정리
+
+```{r, sorted projects, echo = FALSE}
+kable(data.kr[After.o, ][, c(1:4, 6, 5)], align = c('l', rep('r', 5)))
+```
+
+----
+
+### 등급별 예산 비중(%)
+
+```{r, grades, echo = FALSE}
+data$Grades <- factor(ifelse(rank(data$After) >= 18, "우수", ifelse(rank(data$After) >= 12, "보통", "미흡")), levels=c("우수", "보통", "미흡"))
+```
+
+```{r, budget oercentages, echo = FALSE}
+pander(round(tapply(data$Budget, factor(data$Grades), function(x)sum(x)*100/sum(data$Budget)), digits = 1))
+```
+
+```{r, plot, fig.width = 8, fig.height = 8, echo = FALSE}
+#plot(After ~ Before, data = data, xlim = c(60, 100), ylim = c(40, 100), type = "n")
+#text(x = data$Before, y = data$After, labels = data$Division)
+#text(x = data$Before, y = data$After, labels = data$Project, col = as.numeric(data$Division), cex = 0.5)
+```
+
+----
+
+### 부서 점수와 위원회 점수 비교
+
+```{r, dotplot, echo = FALSE}
+library(ggplot2)
+library(grid)
+source("theme_kr_ASGN.R")
+# g1 <- ggplot(data, aes(x = After, y = reorder(Project, After), colour = Division)) + geom_point(size = 3) + theme_bw() + theme.kr.ASGN
+g1 <- ggplot(data) + theme_bw() + theme.kr.ASGN
+g2 <- g1 + xlim(40, 100)
+# g3 <- g2 + geom_point(aes(x = Before, y = reorder(Project, After), colour = Division), size = 3) + xlab("위원회점수와 부서점수") + ylab("포괄보조사업")
+g3 <- g2
+g4 <- g3 + geom_segment(aes(x = Before, y = reorder(Project, After), xend = After, yend = Project, linetype = Division), arrow = arrow(length = unit(0.1, "inches"), ends = "both", type = "closed"))
+g5 <- g4 + xlab("위원회점수와 부서점수") + ylab("포괄보조사업") + labs(linetype = "분과") + theme(legend.position = c(.15,.8))
+g6 <- g5 + geom_hline(yintercept = c(11.5, 17.5), linetype = 3)
+g7 <- g6 + annotate("text", x = c(70, 50), y = c(14.5, 6.5), label = c("보통", "미흡"), family = "Apple SD Gothic Neo" )
+g7
+```
+
